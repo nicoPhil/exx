@@ -1,0 +1,12 @@
+type = "menu"
+
+[[items]]
+id = "subfirst"
+label = "subfirst-label"
+goin = "nowhere"
+
+[[items]]
+id = "subsecond"
+label = "subsecond-label"
+goin = "nowhere"
+
