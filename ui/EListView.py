@@ -53,6 +53,61 @@ class EListView(ListView):
         return self.item_map[item_id]
 
     def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
-        original_id = self.get_original_id(event.item.id)
+        self.on_highlighted(event.item.id)
+
+    def on_highlighted(self, id) -> None:
+        original_id = self.get_original_id(id)
         os.environ["SELECTED_ID"] = original_id
         self.post_message(self.ItemSelected(original_id))
+
+    def get_first_matching_item(self, query: str) -> ListItem:
+        for li in self.children:
+            label = li.children[0].renderable
+            label_value = label.plain
+
+            if label_value.lower().startswith(query.lower()):
+                self.scroll_to_widget(li)
+                return li
+
+        for li in self.children:
+            label = li.children[0].renderable
+            label_value = label.plain
+            if query.lower() in label_value.lower():
+                return li
+
+        return None
+
+    def fuzzy_filter(self, query: str):
+        for li in self.children:
+            label = li.children[0].renderable
+            label_value = label.plain
+            if not query.lower() in label_value.lower():
+                li.styles.display = "none"
+            else:
+                li.styles.display = "block"
+
+        # Find the first visible item
+        first_visible_item = next((li for li in self.children if li.styles.display == "block"), None)
+        if first_visible_item:
+            first_visible_item.highlighted = True
+            self.scroll_to_widget(first_visible_item)
+            self.on_highlighted(first_visible_item.id)
+
+
+    def fuzzy_find(self, query: str):
+        matched_item = self.get_first_matching_item(query)
+        if not matched_item:
+            return
+
+        for li in self.children:
+            li.highlighted=False
+
+        matched_item.highlighted=True
+        self.scroll_to_widget(matched_item)
+        self.on_highlighted(matched_item.id)
+
+    def restore_items(self):
+        for li in self.children: li.styles.display = "block"
+
+
+

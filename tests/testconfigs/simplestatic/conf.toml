@@ -1,4 +1,5 @@
 type = "menu"
+on_init = "export TEST_VAR=test-value"
 
 [[items]]
 id = "first"
@@ -29,3 +30,23 @@ action = "goin"
 key = "h"
 label = "goout"
 action = "goout"
+
+[[shortcuts]]
+key = "a"
+label = "a-label"
+action.command = "export TEST_VAR_A_TEST='test-value-a-test'"
+
+[[shortcuts]]
+key = "b"
+label = "b-label"
+action.command = "export TEST_VAR_B_TEST=$TEST_VAR_A_TEST"
+
+[[shortcuts]]
+key = "f"
+label = "find"
+action = "find"
+
+[[shortcuts]]
+key = "F"
+label = "filter"
+action = "filter"

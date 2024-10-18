@@ -23,5 +23,16 @@ class EMainContainer(Static):
 
     def go_previous(self):
         self.elistview.action_cursor_up()
+
+    def get_child(self):
+        return self.elistview
  
+    def fuzzy_find(self, query: str):
+        self.get_child().fuzzy_find(query)
+
+    def fuzzy_filter(self, query: str):
+        self.get_child().fuzzy_filter(query)
+
+    def restore_items(self):
+        self.get_child().restore_items()
 

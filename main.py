@@ -2,9 +2,10 @@ import os
 import sys
 from conf.ConfLoader import ConfLoader
 from textual.app import App, ComposeResult
-from textual.widgets import ListView, Button, LoadingIndicator,Label
+from textual.widgets import Label
 from ui.EListView import EListView
 from ui.EConsole import EConsole
+from ui.ESearchbox import ESearchbox
 from ui.EMainContainer import EMainContainer
 from utils.logger import log
 from ui.EShortcutsDisplay import EShortcutsDisplay
@@ -25,7 +26,6 @@ class ExecutorApp(App):
         if conf_root_path is None:
             self.conf_root_path = os.getcwd()
         else:
-            print("conf_root_path is not None")
             if not os.path.exists(conf_root_path):
                 raise FileNotFoundError(f"Configuration file not found: {conf_root_path}")
             self.conf_root_path = conf_root_path  # Add this line
@@ -43,14 +43,19 @@ class ExecutorApp(App):
 
         self.econsole.styles.height = "1fr"
         self.econsole.styles.border = ("round", "white")
-        
+        self.searchbox.styles.border = ("round", "white")
+
     def compose(self) -> ComposeResult:
         self.main_container = EMainContainer()
         self.econsole = EConsole()
+        self.searchbox = ESearchbox()
+        self.searchbox.hide()
         self.shortcuts_display = EShortcutsDisplay()
         self.breadcrumb = EBreadcrumb()
+
         yield VerticalScroll(
             self.breadcrumb,
+            self.searchbox,
             Horizontal(
                 self.main_container,
                 self.shortcuts_display
@@ -135,6 +140,10 @@ class ExecutorApp(App):
                 await self.on_refresh()
             elif action == "clear_console":
                 self.on_clear_console()
+            elif action == "find":
+                self.on_find()
+            elif action == "filter":
+                self.on_filter()
             elif action == "yankid" or action == "copyid":
                 self.on_yankid()
             else:
@@ -142,6 +151,12 @@ class ExecutorApp(App):
                 if log:
                     self.econsole.write("---- ACTION OUTPUT ----")
                     self.econsole.write(log)
+
+    def on_find(self):
+        self.searchbox.show_mode_find()
+
+    def on_filter(self):
+        self.searchbox.show_mode_filter()
 
     async def on_key(self, event):
         if self.get_current_conf().is_shortcut(event.key):
@@ -171,7 +186,6 @@ class ExecutorApp(App):
         self.push_conf(new_conf)
 
     async def on_goout(self):
-        log("on_goout")
         mconf = self.get_current_conf()
         await mconf.on_goout()
         if not self.conf_stack.only_one():
@@ -192,7 +206,7 @@ class ExecutorApp(App):
 
     async def on_refresh(self):
         await self.reload_conf_if_needed()
-        self.restore_conf(self.get_current_conf())
+        await self.restore_conf(self.get_current_conf())
 
     def on_clear_console(self):
         self.econsole.clear()
@@ -208,6 +222,15 @@ class ExecutorApp(App):
     async def on_elist_view_item_selected(self, event):
         await self.shortcuts_display.update_view(self.get_current_conf().get_shortcuts(),self.get_current_conf().conf_path)
 
+    async def on_esearchbox_my_changed(self, event):
+        mode = self.searchbox.get_mode()
+        if mode == "find":
+            self.main_container.fuzzy_find(event.value)
+        elif mode == "filter":
+            self.main_container.fuzzy_filter(event.value)
+
+    def on_esearchbox_my_escape(self, event):
+        self.main_container.restore_items()
 
 if __name__ == "__main__":
     log("--------------------------------------------------------------------------------")

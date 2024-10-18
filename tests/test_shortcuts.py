@@ -1,5 +1,8 @@
-from helpers import get_listview_children, get_listview_highlighted_child, get_app
-from textual.widgets import ListItem, Label
+import os
+from helpers import get_listview_children, get_listview_highlighted_child, get_simple_static_conf_app
+
+def get_app():
+    return get_simple_static_conf_app()
 
 async def test_previous_next():
     async with get_app().run_test() as pilot:
@@ -46,4 +49,16 @@ async def test_goout():
         assert len(children) == 2
         assert children[0].children[0].renderable.plain == "first-label"
         assert children[1].children[0].renderable.plain == "second-label"
+
+async def test_shortcut_action_command():
+    async with get_app().run_test() as pilot:
+        await pilot.press("a")
+        assert os.environ.get("TEST_VAR_A_TEST") == "test-value-a-test"
+
+        await pilot.press("b")
+        assert os.environ.get("TEST_VAR_B_TEST") == "test-value-a-test"
+
+        #cleanup env variable
+        os.environ.pop("TEST_VAR_A_TEST")
+        os.environ.pop("TEST_VAR_B_TEST")
 

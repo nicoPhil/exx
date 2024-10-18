@@ -1,0 +1,17 @@
+type = "menu"
+on_init = """
+export TEST_VAR="test-value"
+export TEST_VAR2="test-value2"
+"""
+
+[[items]]
+id = "first"
+label = "first-label"
+goin = "sub"
+
+[[items]]
+id = "second"
+label = "second-label"
+goin = "sub2"
+
+

@@ -2,8 +2,10 @@ import os
 import sys
 from textual.widgets import ListView, ListItem, Label
 
-from helpers import get_listview_children, get_app
+from helpers import get_listview_children, get_simple_static_conf_app
 
+def get_app():
+    return get_simple_static_conf_app()
 
 async def test_nb_items():
     async with get_app().run_test() as pilot:
@@ -29,4 +31,12 @@ async def test_children_keys_and_labels():
         second_label_text = second_label.renderable.plain
         assert second_label_text == "second-label"
 
+async def test_on_init():
+    async with get_app().run_test() as pilot:
+        app = pilot.app
+        await pilot.press("j")
+        assert os.environ.get("TEST_VAR") == "test-value"
+
+        #cleanup env variable
+        os.environ.pop("TEST_VAR")
 

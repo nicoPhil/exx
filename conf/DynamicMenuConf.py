@@ -121,7 +121,6 @@ class DynamicMenuConf(Conf):
         return self.confDict["goin"]
 
     async def on_goin(self):
-        log(f"DynamicMenuConf: on_goin: {self.confDict['on_goin']}")
         if "on_goin" in self.confDict:
             await execute_string_command(self.confDict["on_goin"], self.conf_path)
         else:

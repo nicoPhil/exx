@@ -1,5 +1,4 @@
-from textual.widgets import Static, Button
-from textual.message import Message
+from textual.widgets import Static
 from textual.widgets import RichLog
 
 class EConsole(Static):

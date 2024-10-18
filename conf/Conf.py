@@ -15,6 +15,7 @@ class Conf():
         self.conf_validator = ConfValidator(self.confDict)
         self.conf_timestamp = os.path.getmtime(self.conf_path)
 
+
     def is_conf_file_modified(self):
         mtime = os.path.getmtime(self.conf_path)    
         if mtime != self.conf_timestamp:
@@ -80,8 +81,6 @@ class Conf():
             "errorMessage": None
         }
 
-
-
     def has_init(self):
         return "on_init" in self.confDict
 
@@ -93,7 +92,6 @@ class Conf():
     async def init_if_needed(self):
         if self.has_init():
             await execute_string_command(self.get_init_command(),self.conf_path)
-
 
     def has_shortcuts(self):
         if self.get_shortcuts() is None:
@@ -112,14 +110,11 @@ class Conf():
         
         local_shortcuts = self.confDict.get("shortcuts", [])
         
-        # Create a dictionary to store shortcuts by key for easy lookup
         shortcut_dict = {s["key"]: s for s in shortcuts}
         
-        # Override or add local shortcuts
         for local_shortcut in local_shortcuts:
             shortcut_dict[local_shortcut["key"]] = local_shortcut
         
-        # Convert the dictionary back to a list
         ret = list(shortcut_dict.values())
         return ret
 
