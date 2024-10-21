@@ -1,5 +1,6 @@
 from utils.logger import log
 
+
 class ConfValidator:
     def __init__(self, conf):
         self.conf = conf
@@ -13,14 +14,19 @@ class ConfValidator:
     def _can_be_bool(self, str):
         if isinstance(str, bool):
             return True
-        if str.lower() in self.get_trueish_values() or str.lower()  in self.get_falseish_values():
+        if (
+            str.lower() in self.get_trueish_values()
+            or str.lower() in self.get_falseish_values()
+        ):
             return True
         else:
             return False
 
     def get_value_as_bool(self, str):
         if not self._can_be_bool(str):
-            raise ValueError(f"ConfValidator: get_value_as_bool: {str} is not a boolean")
+            raise ValueError(
+                f"ConfValidator: get_value_as_bool: {str} is not a boolean"
+            )
 
         if str in self.get_trueish_values():
             return True
@@ -34,11 +40,9 @@ class ConfValidator:
         if not self.has_key(key):
             return True
         return self.get_value_as_bool(self.conf[key])
-    
+
     def getBooleanOrFalse(self, key):
         log(self.conf)
         if not self.has_key(key):
             return False
         return self.get_value_as_bool(self.conf[key])
-    
-    

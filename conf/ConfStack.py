@@ -1,5 +1,6 @@
 from conf.Conf import Conf
 
+
 class ConfStack:
     def __init__(self):
         self.stack = []
@@ -21,6 +22,3 @@ class ConfStack:
 
     def only_one(self):
         return len(self.stack) == 1
-
-
-

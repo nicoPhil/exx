@@ -1,0 +1,112 @@
+type = "menu"
+on_init = "export TEST_VAR=test-value"
+
+[[items]]
+id = "first"
+label = "first-label"
+goin = "sub"
+
+[[items]]
+id = "second"
+label = "second-label"
+goin = "sub2"
+
+[[items]]
+id = "third"
+label = "third-label"
+goin = "sub3"
+
+[[items]]
+id = "fourth"
+label = "fourth-label"
+goin = "sub4"
+
+[[items]]
+id = "fifth"
+label = "fifth-label"
+goin = "sub5"
+
+[[items]]
+id = "sixth"
+label = "sixth-label"
+goin = "sub6"
+
+[[items]]
+id = "seventh"
+label = "seventh-label"
+goin = "sub7"  
+
+[[items]]
+id = "eighth"
+label = "eighth-label"
+goin = "sub8"
+
+[[items]]
+id = "ninth"
+label = "ninth-label"
+goin = "sub9"
+
+[[items]]
+id = "tenth"
+label = "tenth-label"
+goin = "sub10"
+
+[[items]]
+id = "eleventh"
+label = "eleventh-label"
+goin = "sub11"
+
+[[items]]
+id = "twelfth"
+label = "twelfth-label"
+goin = "sub12"
+
+[[items]]
+id = "thirteenth"
+label = "thirteenth-label"
+goin = "sub13"
+
+[[items]]
+id = "fourteenth"
+label = "fourteenth-label"
+goin = "sub14"
+
+[[shortcuts]]
+key = "j"
+label = "next"
+action = "next"
+
+[[shortcuts]]
+key = "k"
+label = "previous"
+action = "previous"
+
+[[shortcuts]]
+key = "l"
+label = "goin"
+action = "goin"
+
+[[shortcuts]]
+key = "h"
+label = "goout"
+action = "goout"
+
+[[shortcuts]]
+key = "a"
+label = "a-label"
+action.command = "export TEST_VAR_A_TEST='test-value-a-test'"
+
+[[shortcuts]]
+key = "b"
+label = "b-label"
+action.command = "export TEST_VAR_B_TEST=$TEST_VAR_A_TEST"
+
+[[shortcuts]]
+key = "f"
+label = "find"
+action = "find"
+
+[[shortcuts]]
+key = "F"
+label = "filter"
+action = "filter"

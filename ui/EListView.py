@@ -1,8 +1,11 @@
 from textual.widgets import ListView, ListItem, Label
 from textual.message import Message
 from textual.app import ComposeResult
-from utils.logger import log
 import os
+from typing import cast, Optional
+from textual.widget import Widget
+from rich.text import Text
+
 
 class EListView(ListView):
     class ItemSelected(Message):
@@ -13,7 +16,7 @@ class EListView(ListView):
     def __init__(self, items: list):
         super().__init__()
         self.items = items
-        self.item_map = {}  
+        self.item_map: dict[str, str] = {}
 
     def get_id_from_item(self, item):
         if isinstance(item, dict):
@@ -25,7 +28,7 @@ class EListView(ListView):
                 raise ValueError("Item does not have an id or key")
         else:
             return item
-    
+
     def get_value_from_item(self, item):
         if isinstance(item, dict):
             if "values" in item:
@@ -39,75 +42,98 @@ class EListView(ListView):
 
     def _sanitize_value(self, value):
         return value.replace("\t", " ").replace("\n", " ")
-        
-    def compose(self) -> ComposeResult:
+
+    def getListItemsFromItems(self):
+        list_items = []
         for index, item in enumerate(self.items):
             id = self.get_id_from_item(item)
             value = self.get_value_from_item(item)
             sanitized_value = self._sanitize_value(value)
             sanitized_id = f"item_{index}"
             self.item_map[sanitized_id] = id
-            yield ListItem(Label(sanitized_value), id=sanitized_id)
+            list_items.append(ListItem(Label(sanitized_value), id=sanitized_id))
+        return list_items
+
+    def compose(self) -> ComposeResult:
+        for li in self.getListItemsFromItems():
+            yield li
 
     def get_original_id(self, item_id):
         return self.item_map[item_id]
 
     def on_list_view_highlighted(self, event: ListView.Highlighted) -> None:
-        self.on_highlighted(event.item.id)
+        if event and event.item:
+            self.on_highlighted(event.item.id)
 
     def on_highlighted(self, id) -> None:
         original_id = self.get_original_id(id)
         os.environ["SELECTED_ID"] = original_id
         self.post_message(self.ItemSelected(original_id))
 
-    def get_first_matching_item(self, query: str) -> ListItem:
-        for li in self.children:
-            label = li.children[0].renderable
-            label_value = label.plain
+    def _get_label_value(self, li: ListItem) -> str:
+        first_child_widget: Widget
+        label: Label
+        first_child_widget = li.children[0]
+        label = cast(Label, first_child_widget)
+        renderable = label.renderable
+        if isinstance(renderable, Text):
+            return renderable.plain
+        else:
+            raise ValueError(
+                f"Label value is not a string,it is of type {type(renderable)} "
+            )
 
+    def get_first_matching_item(self, query: str) -> Optional[ListItem]:
+        # First pass: check if query is a prefix of the label
+        for li in cast(list[ListItem], self.children):
+            label_value = self._get_label_value(li)
             if label_value.lower().startswith(query.lower()):
-                self.scroll_to_widget(li)
                 return li
 
-        for li in self.children:
-            label = li.children[0].renderable
-            label_value = label.plain
+        # Second pass: check if query is contained within the label
+        for li in cast(list[ListItem], self.children):
+            label_value = self._get_label_value(li)
             if query.lower() in label_value.lower():
                 return li
 
         return None
 
-    def fuzzy_filter(self, query: str):
-        for li in self.children:
-            label = li.children[0].renderable
-            label_value = label.plain
-            if not query.lower() in label_value.lower():
-                li.styles.display = "none"
-            else:
-                li.styles.display = "block"
+    def scroll_and_highlight(self, li: ListItem):
+        if not li:
+            return
+        self.scroll_to_widget(li)
+        self.on_highlighted(li.id)
 
-        # Find the first visible item
-        first_visible_item = next((li for li in self.children if li.styles.display == "block"), None)
-        if first_visible_item:
-            first_visible_item.highlighted = True
-            self.scroll_to_widget(first_visible_item)
-            self.on_highlighted(first_visible_item.id)
+    async def fuzzy_filter(self, query: str):
+        await self.restore_items()
+        items_to_remove = []
+        for li in cast(list[ListItem], self.children):
+            label_value = self._get_label_value(li)
 
+            if query.lower() not in label_value.lower():
+                items_to_remove.append(li)
 
-    def fuzzy_find(self, query: str):
+        items_to_remove_indices = [self.children.index(li) for li in items_to_remove]
+        await self.remove_items(items_to_remove_indices)
+
+        if self.children:
+            first_item = cast(ListItem, self.children[0])
+            self.index = 0
+            self.scroll_and_highlight(first_item)
+
+    async def fuzzy_find(self, query: str):
         matched_item = self.get_first_matching_item(query)
         if not matched_item:
             return
 
-        for li in self.children:
-            li.highlighted=False
+        for li in cast(list[ListItem], self.children):
+            li.highlighted = False
 
-        matched_item.highlighted=True
-        self.scroll_to_widget(matched_item)
-        self.on_highlighted(matched_item.id)
+        matched_item.highlighted = True
+        self.index = self.children.index(matched_item)
+        self.scroll_and_highlight(matched_item)
 
-    def restore_items(self):
-        for li in self.children: li.styles.display = "block"
-
-
-
+    async def restore_items(self):
+        await self.clear()
+        for li in self.getListItemsFromItems():
+            await self.append(li)

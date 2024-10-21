@@ -1,9 +1,8 @@
 from textual.widgets import Input
 from textual.message import Message
-from utils.logger import log
+
 
 class ESearchbox(Input):
-
     class MyChanged(Message):
         def __init__(self, value: str):
             self.value = value
@@ -63,4 +62,3 @@ class ESearchbox(Input):
         val = self.value
         changed = ESearchbox.MyChanged(val)
         self.post_message(changed)
-

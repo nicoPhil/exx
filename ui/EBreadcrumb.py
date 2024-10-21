@@ -1,5 +1,6 @@
 from textual.widgets import Static, Label
 
+
 class EBreadcrumb(Static):
     def __init__(self):
         super().__init__()
@@ -25,5 +26,3 @@ class EBreadcrumb(Static):
             return
         self.items.pop()
         self._update_text()
-
-

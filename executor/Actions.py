@@ -1,18 +1,18 @@
 from executor.CommandExecutor import execute_string_command
-from utils.logger import log
 
-async def run_action(action,conf_path):
+
+async def run_action(action, conf_path):
     if not isinstance(action, dict):
         raise ValueError("Action: must be a dictionary")
-    if not "command" in action:
+    if "command" not in action:
         raise ValueError("Action: must contain command")
 
     command = action["command"]
     if not isinstance(command, str):
         raise ValueError("Action: command must be a string")
 
-    result = await execute_string_command(command,conf_path)
-    output = result["output"]
+    result = await execute_string_command(command, conf_path)
+    output = result.output
 
     if "output" in action:
         output_type = action["output"]
