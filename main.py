@@ -178,12 +178,20 @@ class ExecutorApp(App):
             elif action == "yankid" or action == "copyid":
                 self.on_yankid()
             else:
+                action_label = shortcut["label"]
                 self.set_loading_on()
-                log = await run_action(action, self.get_current_conf().conf_path)
+                self.write_to_console(f"---- Running action {action_label}... ----")
+                try:
+                    await run_action(
+                        action,
+                        self.get_current_conf().conf_path,
+                        self.write_to_console,
+                        self.write_error_to_console,
+                    )
+                except Exception as e:
+                    self.write_error_to_console(f"Error running action {action}: {e}")
                 self.set_loading_off()
-                if log:
-                    self.econsole.write("---- ACTION OUTPUT ----")
-                    self.econsole.write(log)
+                self.write_to_console(f"---- Action {action_label} completed ----")
 
     def on_find(self):
         self.searchbox.show_mode_find()
@@ -245,6 +253,10 @@ class ExecutorApp(App):
         self.econsole.clear()
 
     def write_to_console(self, text):
+        self.econsole.write(text)
+
+    def write_error_to_console(self, text):
+        self.econsole.write("---- ERROR ----", style="red")
         self.econsole.write(text)
 
     def on_yankid(self):

@@ -1,6 +1,5 @@
 from textual.widgets import Static
 from textual.widgets import RichLog
-from utils.logger import log
 
 
 class EConsole(Static):
@@ -18,5 +17,4 @@ class EConsole(Static):
         self.console.clear()
 
     def get_lines(self):
-        log(f"Lines: {self.console.lines}")
         return self.console.lines

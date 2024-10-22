@@ -44,7 +44,7 @@ action.command = "export TEST_VAR_B_TEST=$TEST_VAR_A_TEST"
 [[shortcuts]]
 key = "c"
 label = "c-label"
-action.command = "echo 'hello';sleep 0.1;echo 'world';sleep 0.1;echo 'third';sleep 0.1;echo 'fourth'"
+action.command = "echo 'hello';sleep 0.5;echo 'world';sleep 0.5;echo 'third';sleep 0.5;echo 'fourth'"
 action.output ="console"
 
 [[shortcuts]]

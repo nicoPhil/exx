@@ -1,5 +1,6 @@
 import os
 from typing import List
+
 from helpers import (
     get_listview_children,
     get_listview_highlighted_child,
@@ -82,16 +83,6 @@ async def test_shortcut_action_command_multiline_results():
         expected_lines.append("world")
         expected_lines.append("third")
         expected_lines.append("fourth")
-        assert get_last_n_lines_from_console(app, len(expected_lines)) == expected_lines
-
-
-async def test_shortcut_action_command_multiline_results_streaming():
-    app = get_app()
-    async with app.run_test() as pilot:
-        expected_lines: List[str] = []
-        expected_lines.append("hello")
-        expected_lines.append("world")
-        expected_lines.append("third")
-        expected_lines.append("fourth")
-
-        await pilot.press("c")
+        # Get the last n lines from the console
+        last_n_lines = get_last_n_lines_from_console(app, len(expected_lines) + 1)
+        assert last_n_lines[:-1] == expected_lines

@@ -1,7 +1,7 @@
 from executor.CommandExecutor import execute_string_command
 
 
-async def run_action(action, conf_path):
+async def run_action(action, conf_path, stdout_callback=None, stderr_callback=None):
     if not isinstance(action, dict):
         raise ValueError("Action: must be a dictionary")
     if "command" not in action:
@@ -11,7 +11,9 @@ async def run_action(action, conf_path):
     if not isinstance(command, str):
         raise ValueError("Action: command must be a string")
 
-    result = await execute_string_command(command, conf_path)
+    result = await execute_string_command(
+        command, conf_path, stdout_callback, stderr_callback
+    )
     output = result.output
 
     if "output" in action:
