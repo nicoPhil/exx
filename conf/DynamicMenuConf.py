@@ -1,4 +1,4 @@
-from .Conf import Conf
+from .Conf import Conf, ConfValidationResult
 from executor.CommandExecutor import (
     execute_command_and_get_items,
     execute_string_command,
@@ -12,39 +12,36 @@ class DynamicMenuConf(Conf):
         super().__init__(confDict, conf_path, parent_conf)
         self.validate_conf()
 
-    def validate_conf(self):
+    def validate_conf(self) -> ConfValidationResult:
+        validation_result = super().validate_conf()
+        if not validation_result.validated:
+            return validation_result
         if "type" not in self.confDict:
-            return {
-                "validated": False,
-                "errorMessage": "DynamicMenuConf: type is required",
-            }
+            return ConfValidationResult.get_no_validation_result(
+                "DynamicMenuConf: type is required",
+            )
         if self.confDict["type"] != "dynamicmenu":
-            return {
-                "validated": False,
-                "errorMessage": f"DynamicMenuConf: type must be 'dynamicmenu', got {self.confDict['type']}",
-            }
+            return ConfValidationResult.get_no_validation_result(
+                f"DynamicMenuConf: type must be 'dynamicmenu', got {self.confDict['type']}",
+            )
         if "command" not in self.confDict:
-            return {
-                "validated": False,
-                "errorMessage": "DynamicMenuConf: command is required",
-            }
+            return ConfValidationResult.get_no_validation_result(
+                "DynamicMenuConf: command is required",
+            )
         if not isinstance(self.confDict["command"], dict):
-            return {
-                "validated": False,
-                "errorMessage": "DynamicMenuConf: command must be a dict",
-            }
+            return ConfValidationResult.get_no_validation_result(
+                "DynamicMenuConf: command must be a dict",
+            )
         commandDict = self.confDict["command"]
         if "command" not in commandDict:
-            return {
-                "validated": False,
-                "errorMessage": "DynamicMenuConf: command.command is required",
-            }
+            return ConfValidationResult.get_no_validation_result(
+                "DynamicMenuConf: command.command is required",
+            )
         if not isinstance(commandDict["command"], str):
-            return {
-                "validated": False,
-                "errorMessage": "DynamicMenuConf: command.command must be a string",
-            }
-        return {"validated": True, "errorMessage": None}
+            return ConfValidationResult.get_no_validation_result(
+                "DynamicMenuConf: command.command must be a string",
+            )
+        return ConfValidationResult.get_validation_result()
 
     def _is_str_json(self, str):
         try:

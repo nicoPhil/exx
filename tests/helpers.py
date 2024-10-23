@@ -20,6 +20,9 @@ def get_lots_of_items_conf_dir():
 def get_multiline_conf_dir():
     return os.path.join(os.path.dirname(__file__), "testconfigs", "multilines")
 
+def get_shortcut_dict_conf_dir():
+    return os.path.join(os.path.dirname(__file__), "testconfigs", "shortcut_dicts")
+
 
 def get_listview_children(app: ExecutorApp):
     return app.main_container.elistview.children
@@ -43,6 +46,12 @@ def get_lots_of_items_app():
 
 def get_multiline_conf_app():
     conf_dir = get_multiline_conf_dir()
+    app = ExecutorApp(conf_dir)
+    return app
+
+
+def get_shortcut_dict_conf_app():
+    conf_dir = get_shortcut_dict_conf_dir()
     app = ExecutorApp(conf_dir)
     return app
 

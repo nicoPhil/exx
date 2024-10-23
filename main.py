@@ -16,12 +16,7 @@ from textual.worker import Worker, WorkerState
 from textual.containers import Horizontal, VerticalScroll
 import pyperclip  # type: ignore
 import asyncio
-from executor.shortcuts import (
-    is_conditional_shortcut,
-    get_conditional_shortcut_command,
-    get_condition_result,
-    istrueish,
-)
+from executor.shortcuts_runner import get_condition_result, istrueish
 
 
 class ExecutorApp(App):
@@ -149,16 +144,16 @@ class ExecutorApp(App):
         if shortcut is None:
             return
 
-        if is_conditional_shortcut(shortcut):
-            condition_command = get_conditional_shortcut_command(shortcut)
+        if shortcut.is_conditional():
+            condition_command = shortcut.get_condition_command()
             condition_result = await get_condition_result(
                 condition_command, self.get_current_conf().conf_path
             )
             if not istrueish(condition_result):
                 return
 
-        if "action" in shortcut:
-            action = shortcut["action"]
+        if shortcut.has_action():
+            action = shortcut.get_action()
             if action == "goin":
                 await self.on_goin()
             elif action == "goout":
@@ -178,7 +173,7 @@ class ExecutorApp(App):
             elif action == "yankid" or action == "copyid":
                 self.on_yankid()
             else:
-                action_label = shortcut["label"]
+                action_label = shortcut.label
                 self.set_loading_on()
                 self.write_to_console(f"---- Running action {action_label}... ----")
                 try:

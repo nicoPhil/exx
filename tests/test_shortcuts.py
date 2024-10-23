@@ -5,6 +5,7 @@ from helpers import (
     get_listview_children,
     get_listview_highlighted_child,
     get_simple_static_conf_app,
+    get_shortcut_dict_conf_app,
     get_last_n_lines_from_console,
 )
 
@@ -12,6 +13,8 @@ from helpers import (
 def get_app():
     return get_simple_static_conf_app()
 
+def get_app_shortcut_dict():
+    return get_shortcut_dict_conf_app()
 
 async def test_previous_next():
     async with get_app().run_test() as pilot:
@@ -86,3 +89,30 @@ async def test_shortcut_action_command_multiline_results():
         # Get the last n lines from the console
         last_n_lines = get_last_n_lines_from_console(app, len(expected_lines) + 1)
         assert last_n_lines[:-1] == expected_lines
+
+
+async def test_shortcut_inherit():
+    app = get_app()
+    async with app.run_test() as pilot:
+        await pilot.press("l")
+        children = get_listview_children(pilot.app)
+        assert len(children) == 2
+
+        highlighted_child = get_listview_highlighted_child(app)
+        assert highlighted_child.id == "item_0"
+
+        await pilot.press("j")
+        children = get_listview_children(pilot.app)
+        assert len(children) == 2
+        highlighted_child = get_listview_highlighted_child(app)
+        assert highlighted_child.id == "item_1"
+
+async def test_shortcut_as_dict():
+    app = get_app_shortcut_dict()
+    async with app.run_test() as pilot:
+        await pilot.press("a")
+        assert os.environ.get("TEST_VAR_A_TEST") == "test-value-a-test"
+        await pilot.press("b")
+        assert os.environ.get("TEST_VAR_B_TEST") == "test-value-b-test"
+        await pilot.press("c")
+        assert os.environ.get("TEST_VAR_C_TEST") == "test-value-c-test"
